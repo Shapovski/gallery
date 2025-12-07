@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shapovski — Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050508;
+      --bg-alt: #111119;
+      --accent: #f5c14b;
+      --accent-soft: rgba(245, 193, 75, 0.12);
+      --text: #f5f5f5;
+      --text-muted: #a3a3b3;
+      --border: #242436;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top left, #1c1c28 0, #050508 50%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      background: rgba(5, 5, 8, 0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #42ff9e;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top, #181824 0, #070710 60%);
+      padding: 18px 18px 20px;
+    }
+
+    .panel + .panel {
+      margin-top: 12px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(10, 10, 16, 0.9);
+    }
+
+    .contacts {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .contacts span {
+      color: var(--text-muted);
+    }
+
+    .contacts a {
+      font-weight: 500;
+    }
+
+    .album-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .album-card {
+      width: 100%;
+      text-align: left;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 10px 11px;
+      background: rgba(6, 6, 12, 0.9);
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      transition: border 0.18s ease, background 0.18s ease, transform 0.12s ease;
+    }
+
+    .album-card:hover {
+      border-color: var(--accent);
+      background: rgba(18, 18, 28, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .album-card.active {
+      border-color: var(--accent);
+      background: radial-gradient(circle at top, rgba(245, 193, 75, 0.2), rgba(10, 10, 16, 0.95));
+    }
+
+    .album-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f5c14b, #ff7a3c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #050508;
+    }
+
+    .album-main {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .album-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .album-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .album-arrow {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    /* Album view */
+
+    .album-view-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .album-view-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .album-view-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .album-view-description {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .media-item {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #1c1c2a;
+      background: #050508;
+      cursor: zoom-in;
+      min-height: 120px;
+    }
+
+    .media-item img,
+    .media-item video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-type-badge {
+      position: absolute;
+      inset: 8px auto auto 8px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: rgba(5, 5, 8, 0.8);
+      border: 1px solid rgba(245, 193, 75, 0.4);
+      color: var(--accent);
+    }
+
+    .media-overlay-gradient {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 40%;
+      background: linear-gradient(to top, rgba(5, 5, 8, 0.95), transparent);
+      pointer-events: none;
+    }
+
+    /* Lightbox */
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      max-width: 1000px;
+      width: 100%;
+      max-height: 90vh;
+      border-radius: 16px;
+      background: #050508;
+      border: 1px solid var(--border);
+      padding: 12px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lightbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .lightbox-close {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(10, 10, 16, 0.9);
+      color: var(--text-muted);
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .lightbox-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-body img,
+    .lightbox-body video {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 10px;
+      display: block;
+    }
+
+    /* Helper */
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">Shapovski</div>
+    <div class="pill">
+      <span class="pill-dot"></span>
+      <span>Photo · Video · Audio</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- ЛЕВАЯ КОЛОНКА: контакты + список альбомов -->
+    <aside>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Контакты</div>
+        </div>
+        <h1>Alexander Fedotovskikh</h1>
+        <p class="subtitle">
+          Los Angeles · Videographer · Video Editor · Audio Engineer
+        </p>
+
+        <div class="contacts">
+          <!-- ЗАМЕНИ на свои -->
+          <div>
+            <span>Email:</span>
+            <a href="mailto:shapovski@gmail.com">shapovski@gmail.com</a>
+          </div>
+          <div>
+            <span>Instagram:</span>
+            <a href="https://instagram.com/shapovski" target="_blank">@shapovski</a>
+          </div>
+          <div>
+            <span>LinkedIn:</span>
+            <a href="https://linkedin.com/in/alexander-fedotovskikh" target="_blank">linkedin.com/in/alexander-fedotovskikh</a>
+          </div>
+        </div>
+
+        <div class="chip-row">
+          <div class="chip">Music videos</div>
+          <div class="chip">Live sessions</div>
+          <div class="chip">Documentary</div>
+          <div class="chip">Podcast</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Альбомы</div>
+          <span class="muted">Нажми, чтобы открыть</span>
+        </div>
+
+        <div id="albumList" class="album-list">
+          <!--
+            Тут просто меняешь альбомы в JS (albumData),
+            разметку трогать не обязательно.
+          -->
+        </div>
+
+        <p class="muted" style="margin-top:10px;">
+          💡 Ты можешь добавлять фото и видео в каждый альбом. Видео можно
+          положить как файл (.mp4) или вставить iframe с YouTube/Vimeo.
+        </p>
+      </div>
+    </aside>
+
+    <!-- ПРАВАЯ КОЛОНКА: содержимое выбранного альбома -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Просмотр альбома</div>
+        <span class="muted" id="albumHint"></span>
+      </div>
+
+      <div id="albumView">
+        <!-- Здесь скрипт нарисует текущий альбом -->
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ЛАЙТБОКС -->
+<div id="lightbox" class="lightbox">
+  <div class="lightbox-inner">
+    <div class="lightbox-header">
+      <div id="lightboxLabel" class="muted"></div>
+      <button class="lightbox-close" id="lightboxClose" aria-label="Закрыть">&times;</button>
+    </div>
+    <div class="lightbox-body">
+      <img id="lightboxImage" alt="" style="display:none;" />
+      <video id="lightboxVideo" controls style="display:none;"></video>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*
+    ===== КАК ПОЛЬЗОВАТЬСЯ =====
+    1) Клади фото в папку /images (например: images/portraits-01.jpg).
+    2) Ниже в albumData добавь/измени альбомы и список медиа.
+    3) type: "image"  — обычная картинка
+       type: "video"  — видео-файл (mp4) или встраивание (см. комментарий ниже)
+  */
+
+  const albumData = [
+    {
+      id: "portraits",
+      name: "Portraits",
+      description: "Подборка портретов артистов, музыкантов и друзей.",
+      emoji: "👤",
+      media: [
+        { type: "image", src: "images/portraits-01.jpg", label: "Portrait 01" },
+        { type: "image", src: "images/portraits-02.jpg", label: "Portrait 02" },
+        { type: "image", src: "images/portraits-03.jpg", label: "Portrait 03" }
+      ]
+    },
+    {
+      id: "live",
+      name: "Live Sessions",
+      description: "Живые выступления, студийные лайвы и концерты.",
+      emoji: "🎸",
+      media: [
+        { type: "image", src: "images/live-01.jpg", label: "Live show still" },
+        { type: "video", src: "videos/live-session-clip.mp4", label: "Live session clip" },
+        { type: "image", src: "images/live-02.jpg", label: "Live stage" }
+      ]
+    },
+    {
+      id: "travel",
+      name: "Travel & Documentary",
+      description: "Путешествия, закулисье съёмок, документальные кадры.",
+      emoji: "🌍",
+      media: [
+        { type: "image", src: "images/travel-01.jpg", label: "Travel frame 01" },
+        { type: "image", src: "images/travel-02.jpg", label: "Travel frame 02" },
+        { type: "image", src: "images/travel-03.jpg", label: "Travel frame 03" }
+      ]
+    }
+  ];
+
+  const albumListEl = document.getElementById("albumList");
+  const albumViewEl = document.getElementById("albumView");
+  const albumHintEl = document.getElementById("albumHint");
+
+  const lightboxEl = document.getElementById("lightbox");
+  const lightboxCloseEl = document.getElementById("lightboxClose");
+  const lightboxLabelEl = document.getElementById("lightboxLabel");
+  const lightboxImageEl = document.getElementById("lightboxImage");
+  const lightboxVideoEl = document.getElementById("lightboxVideo");
+
+  let currentAlbumId = null;
+
+  function renderAlbumList() {
+    albumListEl.innerHTML = "";
+    albumData.forEach((album, index) => {
+      const btn = document.createElement("button");
+      btn.className = "album-card";
+      btn.dataset.albumId = album.id;
+
+      btn.innerHTML = `
+        <div class="album-badge">${album.emoji || "📁"}</div>
+        <div class="album-main">
+          <div class="album-name">${album.name}</div>
+          <div class="album-meta">${album.media.length} медиа · ${album.description}</div>
+        </div>
+        <div class="album-arrow">›</div>
+      `;
+
+      btn.addEventListener("click", () => {
+        setActiveAlbum(album.id);
+      });
+
+      albumListEl.appendChild(btn);
+
+      // по умолчанию открываем первый альбом
+      if (index === 0 && !currentAlbumId) {
+        setActiveAlbum(album.id);
+      }
+    });
+  }
+
+  function setActiveAlbum(albumId) {
+    currentAlbumId = albumId;
+
+    // подсветка активного альбома
+    document.querySelectorAll(".album-card").forEach(card => {
+      card.classList.toggle("active", card.dataset.albumId === albumId);
+    });
+
+    const album = albumData.find(a => a.id === albumId);
+    if (!album) return;
+
+    albumHintEl.textContent = album.name;
+
+    const itemsHtml = album.media.map((item, idx) => {
+      const label = item.label ? item.label : `${album.name} #${idx + 1}`;
+      return `
+        <figure class="media-item" data-type="${item.type}" data-src="${item.src}" data-label="${label}">
+          <span class="media-type-badge">${item.type === "video" ? "Video" : "Photo"}</span>
+          <div class="media-overlay-gradient"></div>
+          ${item.type === "video"
+            ? `<video src="${item.src}" muted playsinline></video>`
+            : `<img src="${item.src}" alt="${label}" loading="lazy" />`
+          }
+        </figure>
+      `;
+    }).join("");
+
+    albumViewEl.innerHTML = `
+      <div class="album-view-header">
+        <div class="album-view-title">${album.name}</div>
+        <div class="album-view-count">${album.media.length} медиа</div>
+      </div>
+      <p class="album-view-description">${album.description}</p>
+      <div class="media-grid">
+        ${itemsHtml}
+      </div>
+    `;
+
+    // навешиваем обработчики на элементы медиа (для лайтбокса)
+    albumViewEl.querySelectorAll(".media-item").forEach(el => {
+      el.addEventListener("click", () => {
+        const type = el.dataset.type;
+        const src = el.dataset.src;
+        const label = el.dataset.label;
+        openLightbox(type, src, label);
+      });
+    });
+  }
+
+  function openLightbox(type, src, label) {
+    lightboxLabelEl.textContent = label || "";
+    lightboxImageEl.style.display = "none";
+    lightboxVideoEl.style.display = "none";
+
+    if (type === "video") {
+      // Если хочешь использовать YouTube, вместо src можешь хранить embed-link
+      // и тогда нужно будет сделать через iframe. Тут вариант под mp4.
+      lightboxVideoEl.src = src;
+      lightboxVideoEl.style.display = "block";
+      lightboxVideoEl.play().catch(() => {});
+    } else {
+      lightboxImageEl.src = src;
+      lightboxImageEl.style.display = "block";
+    }
+
+    lightboxEl.classList.add("open");
+  }
+
+  function closeLightbox() {
+    lightboxEl.classList.remove("open");
+    lightboxImageEl.src = "";
+    lightboxVideoEl.pause();
+    lightboxVideoEl.src = "";
+  }
+
+  lightboxCloseEl.addEventListener("click", closeLightbox);
+  lightboxEl.addEventListener("click", (e) => {
+    if (e.target === lightboxEl) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightboxEl.classList.contains("open")) {
+      closeLightbox();
+    }
+  });
+
+  renderAlbumList();
+</script>
+</body>
+</html>
